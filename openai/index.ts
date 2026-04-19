@@ -2,9 +2,19 @@ import OpenAI from "openai";
 
 const client = new OpenAI();
 
-const response = await client.responses.create({
-    model:"gpt-5.4",
-    input: "Write a one-sentence bedtime story about a unicorn"
+const stream = await client.responses.create({
+    model: "gpt-5.4",
+    input: [
+        {
+            role: "user",
+            content: "Give me a 20 word poem about flowers",
+        },
+    ],
+    stream: true,
 });
 
-console.log(response.output_text);
+for await (const event of stream){
+    if(event.type == "response.output_text.delta"){
+        process.stdout.write(event.delta);
+    }
+}
